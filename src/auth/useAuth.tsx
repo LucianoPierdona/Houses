@@ -61,7 +61,7 @@ export const AuthProvider: FunctionComponent = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, authenticated: !!user, logout }}>
+    <AuthContext.Provider value={{ user, logout, authenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,6 +8,9 @@ const config = {
 };
 
 export default function initFirebase() {
+  console.log("k", process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
+  console.log("kk", process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN);
+  console.log("kkk", process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
   if (!firebase.apps.length) {
     firebase.initializeApp(config);
   }

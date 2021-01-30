@@ -24,3 +24,49 @@ const AuthContext = createContext<IAuthContext>({
   logout: () => null,
   authenticated: false,
 });
+
+export const AuthProvider: FunctionComponent = ({ children }) => {
+  const [user, setUser] = useState<firebase.User | null>(null);
+  const router = useRouter();
+
+  const logout = () => {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        router.push("/");
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  useEffect(() => {
+    const cancelAuthListener = firebase
+      .auth()
+      .onIdTokenChanged(async (user) => {
+        if (user) {
+          const token = await user.getIdToken();
+          setTokenCookie(token);
+          setUser(user);
+        } else {
+          removeTokenCookie();
+          setUser(null);
+        }
+      });
+
+    return () => {
+      cancelAuthListener();
+    };
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, authenticated: !!user, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export function useAuth() {
+  return useContext(AuthContext);
+}

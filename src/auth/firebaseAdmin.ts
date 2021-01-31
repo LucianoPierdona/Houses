@@ -12,12 +12,12 @@ const verifyIdToken = (token: string) => {
         privateKey: firebasePrivateKey.replace(/\\n/g, "\n"),
       }),
     });
-
-    return admin
-      .auth()
-      .verifyIdToken(token)
-      .catch(() => null);
   }
+
+  return admin
+    .auth()
+    .verifyIdToken(token)
+    .catch(() => null);
 };
 
 export const loadIdToken = async (

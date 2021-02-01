@@ -2,7 +2,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 // import { useMutation, gql } from "@apollo/client";
 // import { useRouter } from "next/router";
-// import Link from "next/link";
+import Link from "next/link";
 // import { Image } from "cloudinary-react";
 import { SearchBox } from "./searchBox";
 // import {
@@ -27,6 +27,7 @@ interface IProps {}
 
 export default function HouseForm({}: IProps) {
   const [submitting, setSubmitting] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string>("");
   const { register, handleSubmit, setValue, errors, watch } = useForm<
     IFormData
   >({
@@ -64,6 +65,80 @@ export default function HouseForm({}: IProps) {
         />
         {errors.address && <p>{errors.address.message}</p>}
       </div>
+      {address && (
+        <>
+          <div className="mt-4">
+            <label
+              htmlFor="image"
+              className="p-4 border-dashed border-4 color-gray-60 block cursor-pointer"
+            >
+              Click to add image (16:9)
+            </label>
+            <input
+              id="image"
+              name="image"
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              ref={register({
+                validate: (fileList: FileList) => {
+                  if (fileList.length === 1) return true;
+
+                  return "Please upload one file";
+                },
+              })}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                if (event?.target?.files?.[0]) {
+                  const file = event.target.files[0];
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setPreviewImage(reader.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+            {previewImage && (
+              <img
+                src={previewImage}
+                className="mt-4 object-cover"
+                style={{ width: "576px", height: `${(9 / 16) * 576}px` }}
+              />
+            )}
+            {errors.image && <p>{errors.image.message}</p>}
+          </div>
+
+          <div className="mt-4">
+            <label htmlFor="bedrooms" className="block">
+              Beds
+            </label>
+            <input
+              id="bedrooms"
+              name="bedrooms"
+              type="number"
+              className="p-2"
+              ref={register({
+                required: "Please enter the number of bedrooms",
+                max: { value: 10, message: "Wooah, to big of a house" },
+                min: { value: 1, message: "Must have at least 1 bedroom" },
+              })}
+            />
+            {errors.bedrooms && <p>{errors.bedrooms.message}</p>}
+          </div>
+          <div className="mt-4">
+            <button
+              className="bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded"
+              type="submit"
+              disabled={submitting}
+            >
+              Save
+            </button>{" "}
+            <Link href="/">
+              <a>Cancel</a>
+            </Link>
+          </div>
+        </>
+      )}
     </form>
   );
 }

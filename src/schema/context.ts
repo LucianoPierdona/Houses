@@ -1,19 +1,10 @@
-// import {
-//   ObjectType,
-//   InputType,
-//   Field,
-//   ID,
-//   Float,
-//   Int,
-//   Resolver,
-//   Query,
-//   Mutation,
-//   Arg,
-//   Ctx,
-//   Authorized,
-// } from "type-graphql";
-// import { Min, Max } from "class-validator";
-// import { getBoundsOfDistance } from "geolib";
-// import { Context, AuthorizedContext } from "./context";
+import { PrismaClient } from "../prisma";
 
-export {};
+export interface Context {
+  uid: string | null;
+  prisma: PrismaClient;
+}
+
+export interface AuthorizedContext extends Context {
+  uid: string;
+}

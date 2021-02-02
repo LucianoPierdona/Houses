@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
-// import { useMutation, gql } from "@apollo/client";
+import { useMutation, gql } from "@apollo/client";
 // import { useRouter } from "next/router";
 import Link from "next/link";
 // import { Image } from "cloudinary-react";
@@ -13,7 +13,40 @@ import { SearchBox } from "./searchBox";
 //   UpdateHouseMutation,
 //   UpdateHouseMutationVariables,
 // } from "src/generated/UpdateHouseMutation";
-// import { CreateSignatureMutation } from "src/generated/CreateSignatureMutation";
+import { CreateSignatureMutation } from "src/generated/CreateSignatureMutation";
+
+interface IUploadImageResponse {
+  secure_url: string;
+}
+
+const SIGNATURE_MUTATION = gql`
+  mutation CreateSignatureMutation {
+    createImageSignature {
+      signature
+      timestamp
+    }
+  }
+`;
+
+async function uploadImage(
+  image: File,
+  signature: string,
+  timestamp: number
+): Promise<IUploadImageResponse> {
+  const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
+  const formData = new FormData();
+  formData.append("file", image);
+  formData.append("signature", signature);
+  formData.append("timestamp", timestamp.toString());
+  formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDINARY_KEY ?? "");
+
+  const response = await fetch(url, {
+    method: "post",
+    body: formData,
+  });
+
+  return response.json();
+}
 
 interface IFormData {
   address: string;
@@ -33,6 +66,9 @@ export default function HouseForm({}: IProps) {
   >({
     defaultValues: {},
   });
+  const [createSignature] = useMutation<CreateSignatureMutation>(
+    SIGNATURE_MUTATION
+  );
 
   useEffect(() => {
     register({ name: "address" }, { required: "Please enter your address" });
@@ -40,7 +76,15 @@ export default function HouseForm({}: IProps) {
     register({ name: "longitude" }, { required: true, min: -180, max: 180 });
   }, [register]);
   const address = watch("address");
-  const handleCreate = async (data: IFormData) => {};
+  const handleCreate = async (data: IFormData) => {
+    const { data: signatureData } = await createSignature();
+
+    if (signatureData) {
+      const { signature, timestamp } = signatureData.createImageSignature;
+      const imageData = await uploadImage(data.image[0], signature, timestamp);
+      // const imageUrl = imageData.secure_url;
+    }
+  };
 
   const onSubmit = (data: IFormData) => {
     setSubmitting(true);

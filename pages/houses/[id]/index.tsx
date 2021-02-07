@@ -19,6 +19,11 @@ const SHOW_HOUSE_QUERY = gql`
       bedrooms
       latitude
       longitude
+      nearby {
+        id
+        latitude
+        longitude
+      }
     }
   }
 `;

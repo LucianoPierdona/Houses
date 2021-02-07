@@ -43,7 +43,10 @@ export default function SingleMap({ house }: IProps) {
           offsetLeft={-15}
           offsetTop={-15}
         >
-          <button>
+          <button
+            type="button"
+            style={{ width: "30px", height: "30px", fontSize: "30px" }}
+          >
             <img src="/home-color.svg" className="w-8" alt="selected house" />
           </button>
         </Marker>

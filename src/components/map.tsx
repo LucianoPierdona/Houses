@@ -3,15 +3,17 @@ import Link from "next/link";
 import { Image } from "cloudinary-react";
 import ReactMapGL, { Marker, Popup, ViewState } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-// import { useLocalState } from "src/utils/useLocalState";
+import { useLocalState } from "src/utils/useLocalState";
 // import { HousesQuery_houses } from "src/generated/HousesQuery";
 // import { SearchBox } from "./searchBox";
 
-interface IProps {}
+interface IProps {
+  setDataBounds: (bounds: string) => void;
+}
 
-export default function Map({}: IProps) {
+export default function Map({ setDataBounds }: IProps) {
   const mapRef = useRef<ReactMapGL | null>(null);
-  const [viewport, setViewport] = useState<ViewState>({
+  const [viewport, setViewport] = useLocalState<ViewState>("viewport", {
     latitude: -28.8578234,
     longitude: -51.2808918,
     zoom: 13,
@@ -29,6 +31,20 @@ export default function Map({}: IProps) {
         minZoom={5}
         maxZoom={15}
         mapStyle="mapbox://styles/leighhalliday/ckhjaksxg0x2v19s1ovps41ef"
+        onLoad={() => {
+          if (mapRef.current) {
+            const bounds = mapRef.current.getMap().getBounds();
+
+            setDataBounds(JSON.stringify(bounds.toArray()));
+          }
+        }}
+        onInteractionStateChange={(extra) => {
+          if (!extra.isDragging && mapRef.current) {
+            const bounds = mapRef.current.getMap().getBounds();
+
+            setDataBounds(JSON.stringify(bounds.toArray()));
+          }
+        }}
       ></ReactMapGL>
     </div>
   );

@@ -1,4 +1,4 @@
-// import { useState } from "react";
+import { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 import { useDebounce } from "use-debounce";
 import Layout from "src/components/layout";
@@ -23,25 +23,26 @@ const HOUSES_QUERY = gql`
 
 type BoundsArray = [[number, number], [number, number]];
 
+const parseBounds = (boundsString: string) => {
+  const bounds = JSON.parse(boundsString) as BoundsArray;
+  return {
+    sw: {
+      latitude: bounds[0][1],
+      longitude: bounds[0][0],
+    },
+    ne: {
+      latitude: bounds[1][1],
+      longitude: bounds[1][0],
+    },
+  };
+};
+
 export default function Home() {
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [dataBounds, setDataBounds] = useLocalState<string>(
     "bounds",
     "[[0,0],[0,0]]"
   );
-
-  const parseBounds = (boundsString: string) => {
-    const bounds = JSON.parse(boundsString) as BoundsArray;
-    return {
-      sw: {
-        latitude: bounds[0][1],
-        longitude: bounds[0][0],
-      },
-      ne: {
-        latitude: bounds[1][1],
-        longitude: bounds[1][0],
-      },
-    };
-  };
 
   const [debouncedDataBounds] = useDebounce(dataBounds, 200);
   const { data, error } = useQuery<HousesQuery, HousesQueryVariables>(
@@ -63,12 +64,16 @@ export default function Home() {
             className="w-1/2 pb-4"
             style={{ maxHeight: "calc(100vh - 64px)" }}
           >
-            <HouseList houses={lastData ? lastData.houses : []} />
+            <HouseList
+              houses={lastData ? lastData.houses : []}
+              setHighlightedId={setHighlightedId}
+            />
           </div>
           <div className="w-1/2">
             <Map
               setDataBounds={setDataBounds}
               houses={lastData ? lastData.houses : []}
+              highlightedId={highlightedId}
             />
           </div>
         </div>

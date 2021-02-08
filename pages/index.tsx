@@ -4,7 +4,7 @@ import { useDebounce } from "use-debounce";
 import Layout from "src/components/layout";
 import Map from "src/components/map";
 // import HouseList from "src/components/houseList";
-// import { useLastData } from "src/utils/useLastData";
+import { useLastData } from "src/utils/useLastData";
 import { useLocalState } from "src/utils/useLocalState";
 import { HousesQuery, HousesQueryVariables } from "src/generated/HousesQuery";
 
@@ -49,9 +49,11 @@ export default function Home() {
     { variables: { bounds: parseBounds(debouncedDataBounds) } }
   );
 
+  const lastData = useLastData(data);
+
   if (error) return <Layout main={<div>Error loading houses</div>} />;
 
-  console.log(data);
+  console.log(lastData);
 
   return (
     <Layout
@@ -64,7 +66,10 @@ export default function Home() {
             HouseList
           </div>
           <div className="w-1/2">
-            <Map setDataBounds={setDataBounds} />
+            <Map
+              setDataBounds={setDataBounds}
+              houses={lastData ? lastData.houses : []}
+            />
           </div>
         </div>
       }

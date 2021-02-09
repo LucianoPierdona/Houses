@@ -15,6 +15,7 @@ import {
 import { Min, Max } from "class-validator";
 import { getBoundsOfDistance } from "geolib";
 import { Context, AuthorizedContext } from "./context";
+import Auth from "pages/auth";
 
 @InputType()
 class CoordinatesInput {
@@ -127,6 +128,33 @@ export class HouseResolver {
     return await ctx.prisma.house.create({
       data: {
         userId: ctx.uid,
+        address: input.address,
+        bedrooms: input.bedrooms,
+        image: input.image,
+        latitude: input.coordinates.latitude,
+        longitude: input.coordinates.longitude,
+      },
+    });
+  }
+
+  @Authorized()
+  @Mutation((_returns) => House, { nullable: true })
+  async updateHouse(
+    @Arg("id") id: string,
+    @Arg("input") input: HouseInput,
+    @Ctx() ctx: AuthorizedContext
+  ) {
+    const houseId = parseInt(id, 10);
+
+    const house = await ctx.prisma.house.findOne({ where: { id: houseId } });
+
+    if (!house || house.userId !== ctx.uid) return null;
+
+    return await ctx.prisma.house.update({
+      where: {
+        id: houseId,
+      },
+      data: {
         address: input.address,
         bedrooms: input.bedrooms,
         image: input.image,

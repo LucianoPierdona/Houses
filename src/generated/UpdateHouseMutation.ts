@@ -26,5 +26,5 @@ export interface UpdateHouseMutation {
 
 export interface UpdateHouseMutationVariables {
   id: string;
-  input?: HouseInput | null;
+  input: HouseInput;
 }

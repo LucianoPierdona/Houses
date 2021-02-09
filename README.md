@@ -17,4 +17,7 @@ The following tools were used in this project:
 - [Apollo](https://www.apollographql.com/docs/)
 - [GraphQL](https://graphql.org/)
 - [Firebase](https://firebase.google.com/)
+- [GoogleMapsApi](https://developers.google.com/maps/documentation/javascript/overview)
 - [Prisma](https://www.prisma.io/)
+- [Cloudinary](https://cloudinary.com/)
+- [PostgreSQL](https://www.postgresql.org/)
